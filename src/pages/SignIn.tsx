@@ -1,15 +1,37 @@
 import React, { useState } from "react";
 import Input from "../components/Input";
 import { Link } from "react-router-dom";
+import { loginUser } from "../services/auth.service";
+import { useNavigate } from "react-router-dom";
 
 const SignIn: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password });
-  };
+
+    try {
+      const res = await loginUser(email, password);
+
+      console.log("Login success:", res.data);
+ // Check token exists
+      if (!res.token) {
+        alert("Invalid server response – token missing");
+        return;
+      }
+
+      // Save token
+      localStorage.setItem("token", res.token);
+
+      alert("Logged in successfully!");
+      navigate("/chat");
+    } catch (error: any) {
+      console.error(error);
+      alert(error.response?.data?.message || "Login failed");
+    }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
@@ -34,7 +56,7 @@ const SignIn: React.FC = () => {
         </form>
 
         <p className="text-gray-400 mt-4 text-center">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link to="/signup" className="text-blue-400 hover:underline">
             Create one
           </Link>

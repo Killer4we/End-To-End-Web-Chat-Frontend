@@ -1,16 +1,31 @@
 import React, { useState } from "react";
 import Input from "../components/Input";
+// const {signupUser} = require("../services/auth.service");
+import { signupUser } from "../services/auth.service";
+import { useNavigate} from "react-router-dom";
 import { Link } from "react-router-dom";
 
 const SignUp: React.FC = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSignup = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log({ username, email, password });
-  };
+  const handleSignup = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const res = await signupUser(username, email, password);
+    console.log("Signup success:", res);
+
+    alert("Account created successfully!");
+
+    navigate("/signin");
+  } catch (error: any) {
+    console.error(error);
+    alert(error.response?.data?.message || "Signup failed");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 px-4">
